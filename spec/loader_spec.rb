@@ -1,6 +1,6 @@
 require File.expand_path("../spec_helper.rb", __FILE__)
 
-describe Envred do
+describe Envred::Loader do
   let(:server) do
     ENV['REDIS_URL'].split('redis://').last.split('/').first
   end
@@ -13,22 +13,47 @@ describe Envred do
     Redis.new(url: "redis://#{server}/0")
   end
 
-  describe Envred::Wrapper do
-    let(:setenv) do
-      { foo: 1, bar: 2 }
-    end
+  let(:setenv) do
+    { foo: 1, bar: 2 }
+  end
 
+  before do
+    redis.mapped_hmset("test", setenv)
+  end
+
+  describe "#load" do
+    it "loads list of set variables" do
+      all = Envred::Loader.new(central).load
+      all.should have(2).items
+      all['foo'].should == '1'
+      all['bar'].should == '2'
+    end
+  end
+
+  describe "#load" do
+    it "loads list of set variables and produces an iterator for it" do
+      all = {}
+
+      Envred::Loader.new(central).each do |key, val|
+        all[key] = val
+      end
+
+      all.should have(2).items
+      all['foo'].should == '1'
+      all['bar'].should == '2'
+    end
+  end
+
+  describe "#apply" do
     before do
       ENV.delete('foo')
       ENV.delete('bar')
-
-      redis.mapped_hmset("test", setenv)
     end
 
     it "should load proper configuration and set env" do
       env = nil
 
-      Envred::Wrapper.new(central) do
+      Envred::Loader.new(central).apply do
         env = ENV
       end
 
@@ -39,7 +64,7 @@ describe Envred do
     it "should property pass env to commands" do
       res = nil
 
-      Envred::Wrapper.new(central) do
+      Envred::Loader.new(central).apply do
         res = `echo $foo $bar`.strip
       end
 
@@ -59,7 +84,7 @@ describe Envred do
       it "should not change existing keys" do
         res = nil
 
-        Envred::Wrapper.new(central) do
+        Envred::Loader.new(central).apply do
           res = `echo $foo $bar`.strip
         end
 
@@ -69,7 +94,7 @@ describe Envred do
       it "should remove key if value is empty" do
         res = nil
 
-        Envred::Wrapper.new(central) do
+        Envred::Loader.new(central).apply do
           res = `echo $foo $bar $baz`.strip
         end
 

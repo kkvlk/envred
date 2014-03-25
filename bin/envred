@@ -3,18 +3,68 @@
 require 'rubygems'
 require 'envred'
 
+$app_name = 'envred'
+
+def validate_argc(condition)
+  if condition
+    $stderr.write("ERROR: Invalid parameters. Run with `-h' flag for help.\n")
+    exit(1)
+  end
+end
+
+def safe
+  yield
+rescue => err
+  $stderr.write("ERROR: #{err.to_s}\n")
+  exit(146)
+end
+
 case ARGV[0]
 when "-h", "--help"
-  puts "usage: envred [-h|--help] [CENTRAL] [COMMAND]"
+  puts "usage: #{$app_name} CENTRAL COMMAND"
+  puts "       #{$app_name} [-s|--set] CENTRAL KEY VALUE [KEY VALUE...]"
+  puts "       #{$app_name} [-u|--unset] CENTRAL KEY [KEY...]"
+  puts "       #{$app_name} [-l|--list] CENTRAL"
+  puts "       #{$app_name} [-p|--purge] CENTRAL"
+  puts "       #{$app_name} [-h|--help]"
   exit
 when "-v", "--version"
-  puts "envred v#{Envred::VERSION}"
+  puts "#{$app_name} v#{Envred::VERSION}"
   exit
+when "-s", "--set"
+  ARGV.shift
+  validate_argc(ARGV.size < 3)
+  safe do
+    Envred::Setter.new(ARGV.shift).set(*ARGV)
+    puts "Ok!"
+  end
+when "-u", "--unset"
+  ARGV.shift
+  validate_argc(ARGV.size < 2)
+  safe do
+    Envred::Setter.new(ARGV.shift).unset(*ARGV)
+    puts "Ok!"
+  end
+when "-l", "--list"
+  ARGV.shift
+  validate_argc(ARGV.size < 1)
+  safe do
+    Envred::Loader.new(ARGV.shift).each do |key, val|
+      puts "#{key}=#{val.inspect}"
+    end
+  end
+when "-p", "--purge"
+  ARGV.shift
+  validate_argc(ARGV.size < 1)
+  safe do
+    Envred::Purgator.new(ARGV.shift).purge
+    puts "Ok!"
+  end
+else
+  validate_argc(ARGV.size < 2)
+  safe do
+    Envred::Loader.new(ARGV.shift).apply do
+      system ARGV.join(" ")
+    end
+  end
 end
-
-if ARGV.size < 2
-  $stderr.write("ERROR: Invalid parameters. Run with `-h' flag for help.\n")
-  exit(1)
-end
-
-Envred.wrap(ARGV.shift, ARGV.join(" "))
