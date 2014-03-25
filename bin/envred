@@ -44,7 +44,7 @@ desc "List variables."
 long_desc "Display list of stored variables."
 command :list do |c|
   c.action do |globals, options, args|
-    print "Loading all variables..."
+    print "Loading all variables... "
 
     all = $envred.load
 
