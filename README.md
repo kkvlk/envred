@@ -18,24 +18,28 @@ Install via rubygems:
 
 Set some variables first:
 
-    $ envred localhost:6379/0/~myapp set FOO 1 BAR 2 BAZ 3
+    $ envred -c localhost:6379/0 -a myapp set FOO 1 BAR 2 BAZ 3
 
-The `localhost:6379` is host anf port of Redis server, `0` is the number of
-the database to load stuff from, finally, `myapp` is the key which keeps
-the data as hash.
+The `localhost:6379/0` is host, port and number of Redis database to load
+stuff from, and `myapp` is the key which keeps the data as hash.
 
 Now you can run any application with environment loaded from Redis server:
 
-    $ envred localhost:6379/0/~myapp wrap myapp --do something
+    $ envred -c localhost:6379/0 -a myapp wrap myapp --do something
 
 To list all your variables use:
 
-    $ envred localhost:6379/0/~myapp list
+    $ envred -c localhost:6379/0~myapp list
 
 You can remove specific keys or purge all config:
 
-    $ envred localhost:6379/0/~myapp unset FOO BAR
-    $ envred localhost:6379/0/~myapp purge
+    $ envred -c localhost:6379/0 -a myapp unset FOO BAR
+    $ envred -c localhost:6379/0 -a myapp purge
+
+Note! Instead of specifying central url all the time, you can store it in
+`ENVRED_CENTRAL` env variable:
+
+    $ export ENVRED_CENTRAL=localhost:6379/0
 
 ## Hacking
 
