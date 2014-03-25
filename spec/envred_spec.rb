@@ -1,16 +1,16 @@
 require File.expand_path("../spec_helper.rb", __FILE__)
 
 describe Envred do
-  let(:central) do
-    "localhost:6379/0/~test"
+  let(:server) do
+    ENV['REDIS_URL'].split('redis://').last.split('/').first
   end
 
-  let(:server) do
-    central.split('/~').first
+  let(:central) do
+    "#{server}/0/~test"
   end
 
   let(:redis) do
-    Redis.new(url: "redis://#{server}")
+    Redis.new(url: "redis://#{server}/0")
   end
 
   describe Envred::Wrapper do
