@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'envred'
+
+case ARGV[0]
+when "-h", "--help"
+  puts "usage: envred [-h|--help] [CENTRAL] [COMMAND]"
+  exit
+when "-v", "--version"
+  puts "envred v#{Envred::VERSION}"
+  exit
+end
+
+if ARGV.size < 2
+  $stderr.write("ERROR: Invalid parameters. Run with `-h' flag for help.\n")
+  exit(1)
+end
+
+Envred.wrap(ARGV.shift, ARGV.join(" "))
