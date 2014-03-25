@@ -29,7 +29,7 @@ Now you can run any application with environment loaded from Redis server:
 
 To list all your variables use:
 
-    $ envred -c localhost:6379/0 list
+    $ envred -c localhost:6379/0 -a myapp list
 
 You can remove specific keys or purge all config:
 
