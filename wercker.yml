@@ -1,4 +1,6 @@
 box: wercker/rvm
+services:
+  - wercker/redis@0
 build:
   steps:
     - rvm-use:
