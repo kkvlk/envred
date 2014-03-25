@@ -1,0 +1,23 @@
+box: wercker/rvm
+build:
+  steps:
+    - rvm-use:
+        version: 2.1.0
+    - bundle-install
+    - script:
+        name: rspec
+        code: |
+          bundle exec rspec
+deploy:
+  steps:
+    - rvm-use:
+        version: 2.1.0
+    - bundle-install
+    - script:
+        name: rubygems-release
+        code: |
+          echo ":rubygems_api_key: $RUBYGEMS_API_KEY" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          rm -rf pkg
+          bundle exec rake build
+          ls -1 pkg/*.gem | xargs gem push
