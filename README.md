@@ -1,6 +1,6 @@
 # envred
 
-**Environment config loader backed by Redis**
+**Environment config loader backed by Redis.**
 
 ![Build Status](https://app.wercker.com/status/0aa6c6c8ed8cd84fb608604ae7dc7604/s/)
 
