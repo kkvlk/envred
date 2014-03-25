@@ -56,6 +56,6 @@ Now you should be able to run tests:
 
 ## Copyrights
 
-Copyright (c) by Kris Kovalik <hi@kkvlk.me>
+Copyright (c) by Kris Kovalik <<hi@kkvlk.me>>
 
 Released under MIT License. Check [LICENSE.txt](LICENSE.txt) for details.
