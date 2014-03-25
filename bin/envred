@@ -2,69 +2,105 @@
 
 require 'rubygems'
 require 'envred'
+require 'gli'
 
-$app_name = 'envred'
+include GLI::App
 
-def validate_argc(condition)
-  if condition
-    $stderr.write("ERROR: Invalid parameters. Run with `-h' flag for help.\n")
-    exit(1)
-  end
+program_desc "Environment configuration backed with Redis."
+
+desc "The URL of central env server."
+flag [:c, :central], :default_value => ENV['ENVRED_CENTRAL']
+
+pre do |globals, command, options, args|
+  $envred = Envred.new(globals[:central])
 end
 
-def safe
-  yield
-rescue => err
-  $stderr.write("ERROR: #{err.to_s}\n")
-  exit(146)
-end
-
-case ARGV[0]
-when "-h", "--help"
-  puts "usage: #{$app_name} CENTRAL COMMAND"
-  puts "       #{$app_name} [-s|--set] CENTRAL KEY VALUE [KEY VALUE...]"
-  puts "       #{$app_name} [-u|--unset] CENTRAL KEY [KEY...]"
-  puts "       #{$app_name} [-l|--list] CENTRAL"
-  puts "       #{$app_name} [-p|--purge] CENTRAL"
-  puts "       #{$app_name} [-h|--help]"
-  exit
-when "-v", "--version"
-  puts "#{$app_name} v#{Envred::VERSION}"
-  exit
-when "-s", "--set"
-  ARGV.shift
-  validate_argc(ARGV.size < 3)
-  safe do
-    Envred::Setter.new(ARGV.shift).set(*ARGV)
-    puts "Ok!"
-  end
-when "-u", "--unset"
-  ARGV.shift
-  validate_argc(ARGV.size < 2)
-  safe do
-    Envred::Setter.new(ARGV.shift).unset(*ARGV)
-    puts "Ok!"
-  end
-when "-l", "--list"
-  ARGV.shift
-  validate_argc(ARGV.size < 1)
-  safe do
-    Envred::Loader.new(ARGV.shift).each do |key, val|
-      puts "#{key}=#{val.inspect}"
+desc "Wrap command with loaded env variables."
+long_desc "Executes given command previously setting all loaded env variables."
+command :wrap do |c|
+  c.action do |globals, options, args|
+    if args.empty?
+      help_now!('you must specify command to run')
     end
-  end
-when "-p", "--purge"
-  ARGV.shift
-  validate_argc(ARGV.size < 1)
-  safe do
-    Envred::Purgator.new(ARGV.shift).purge
-    puts "Ok!"
-  end
-else
-  validate_argc(ARGV.size < 2)
-  safe do
-    Envred::Loader.new(ARGV.shift).apply do
-      system ARGV.join(" ")
+
+    $envred.apply do
+      exit(system(args.join(" ")))
     end
   end
 end
+
+desc "List variables."
+long_desc "Display list of stored variables."
+command :list do |c|
+  c.action do |globals, options, args|
+    print "Loading all variables..."
+
+    all = $envred.load
+
+    print "\r" + (" " * 40) + "\r"
+
+    if all.empty?
+      puts "No variables to show!"
+    else
+      all.each do |key, val|
+        puts "#{key}=#{val.inspect}"
+      end
+    end
+  end
+end
+
+desc "Set env variables."
+long_desc "Assigns values to one or more env variale."
+command :set do |c|
+  c.action do |globals, options, args|
+    if args.size % 2 != 0
+      help_now!("mismatched number of key-value pair arguments")
+    elsif args.size < 2
+      help_now!("you must specify at leat one key-value pair")
+    end
+
+    print "Saving variables... "
+
+    $envred.set(*args)
+
+    puts "Ok!"
+  end
+end
+
+desc "Remove variables."
+long_desc "Removes one or more env variable."
+command :unset do |c|
+  c.action do |globals, options, args|
+    if args.empty?
+      help_now!("you must specify at leat one key to remove")
+    end
+
+    print "Removing variables... "
+
+    $envred.unset(*args)
+
+    puts "Ok!"
+  end
+end
+
+desc "Delete all variables."
+long_desc "Removes all stored variables from the project."
+command :purge do |c|
+  c.action do |globals, options, args|
+    print "Purging variables list... "
+
+    $envred.purge
+
+    puts "Ok!"
+  end
+end
+
+desc "Display current version."
+long_desc "Displays current version number."
+command :version do |c|
+  c.action do |globals, options, args|
+    puts "envred v#{Envred::VERSION}"
+  end
+end
+
+exit run(ARGV)

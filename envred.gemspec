@@ -22,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 2.5"
   spec.add_development_dependency "rake"
   spec.add_dependency "redis", "~> 3.0"
+  spec.add_dependency "gli", "~> 2.9"
 end
