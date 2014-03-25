@@ -2,6 +2,8 @@
 
 **Environment config loader backed by Redis**
 
+![Build Status](https://app.wercker.com/status/0aa6c6c8ed8cd84fb608604ae7dc7604/s/)
+
 This is a simple tool in flavor of `envdir` from daemontools package. Instead of
 loading environment from directory, it loads it for redis hash specified in
 the central url. See examples section for details.
