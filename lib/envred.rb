@@ -2,9 +2,9 @@ require "envred/version"
 require "redis"
 
 class Envred
-  def initialize(central)
-    @server, @app = central.split("/~")
-    @redis = Redis.new(url: "redis://#{@server}")
+  def initialize(central, app)
+    @central, @app = central, app
+    @redis = Redis.new(url: "redis://#{@central}")
   end
 
   def load

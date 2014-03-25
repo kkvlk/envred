@@ -11,8 +11,19 @@ program_desc "Environment configuration backed with Redis."
 desc "The URL of central env server."
 flag [:c, :central], :default_value => ENV['ENVRED_CENTRAL']
 
+desc "The name of the app."
+flag [:a, :app]
+
 pre do |globals, command, options, args|
-  $envred = Envred.new(globals[:central])
+  unless globals[:app]
+    help_now!("you must specify a name of the app")
+  end
+
+  unless globals[:central]
+    help_now!("you must specify address of the central server")
+  end
+
+  $envred = Envred.new(globals[:central], globals[:app])
 end
 
 desc "Wrap command with loaded env variables."

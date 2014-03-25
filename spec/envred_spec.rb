@@ -6,7 +6,11 @@ describe Envred do
   end
 
   let(:central) do
-    "#{server}/0/~test"
+    "#{server}/0"
+  end
+
+  let(:app) do
+    "test"
   end
 
   let(:redis) do
@@ -24,7 +28,7 @@ describe Envred do
 
   describe "#load" do
     it "loads list of set variables" do
-      all = Envred.new(central).load
+      all = Envred.new(central, app).load
       all.should have(2).items
       all['foo'].should == '1'
       all['bar'].should == '2'
@@ -40,7 +44,7 @@ describe Envred do
     it "should load proper configuration and set env" do
       env = nil
 
-      Envred.new(central).apply do
+      Envred.new(central, app).apply do
         env = ENV
       end
 
@@ -51,7 +55,7 @@ describe Envred do
     it "should property pass env to commands" do
       res = nil
 
-      Envred.new(central).apply do
+      Envred.new(central, app).apply do
         res = `echo $foo $bar`.strip
       end
 
@@ -71,7 +75,7 @@ describe Envred do
       it "should not change existing keys" do
         res = nil
 
-        Envred.new(central).apply do
+        Envred.new(central, app).apply do
           res = `echo $foo $bar`.strip
         end
 
@@ -81,7 +85,7 @@ describe Envred do
       it "should remove key if value is empty" do
         res = nil
 
-        Envred.new(central).apply do
+        Envred.new(central, app).apply do
           res = `echo $foo $bar $baz`.strip
         end
 
@@ -93,15 +97,15 @@ describe Envred do
 
   describe "#set" do
     it "should save given variable if non empty" do
-      Envred.new(central).set("foo", 1)
+      Envred.new(central, app).set("foo", 1)
       redis.hget("test", "foo").should == "1"
     end
   end
 
   describe "#unset" do
     it "should save given variable if non empty" do
-      Envred.new(central).set("foo", 1)
-      Envred.new(central).unset("foo")
+      Envred.new(central, app).set("foo", 1)
+      Envred.new(central, app).unset("foo")
       redis.hget("test", "foo").should == nil
     end
   end
