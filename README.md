@@ -4,8 +4,8 @@
 
 ![Build Status](https://app.wercker.com/status/0aa6c6c8ed8cd84fb608604ae7dc7604/s/)
 
-This is a simple tool in flavor of [envdir](http://cr.yp.to/daemontools/envdir.html) from 
-daemontools package. Instead of loading environment from directory, it loads it for redis hash 
+This is a simple tool in flavor of [envdir](http://cr.yp.to/daemontools/envdir.html) from
+daemontools package. Instead of loading environment from directory, it loads it for redis hash
 specified in the central url. See examples section for details.
 
 ## Installation
@@ -36,10 +36,12 @@ You can remove specific keys or purge all config:
     $ envred -c localhost:6379/0 -a myapp unset FOO BAR
     $ envred -c localhost:6379/0 -a myapp purge
 
-Note! Instead of specifying central url all the time, you can store it in
-`ENVRED_CENTRAL` env variable:
+Note! Instead of specifying central url all the time, you can store it
+in `ENVRED_CENTRAL_URL` env variable. Analogically, you can do the same with app
+name by providing `ENVRED_APP_NAME`:
 
-    $ export ENVRED_CENTRAL=localhost:6379/0
+    $ export ENVRED_CENTRAL_URL=localhost:6379/0
+    $ export ENVRED_APP_NAME=myapp
 
 ## Hacking
 

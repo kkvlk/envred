@@ -9,10 +9,10 @@ include GLI::App
 program_desc "Environment configuration backed with Redis."
 
 desc "The URL of central env server."
-flag [:c, :central], :default_value => ENV['ENVRED_CENTRAL']
+flag [:c, :central], :default_value => ENV['ENVRED_CENTRAL_URL']
 
 desc "The name of the app."
-flag [:a, :app]
+flag [:a, :app], :default_value => ENV['ENVRED_APP_NAME']
 
 pre do |globals, command, options, args|
   unless globals[:app]
