@@ -35,7 +35,7 @@ command :wrap do |c|
     end
 
     $envred.apply do
-      exit(system(args.join(" ")))
+      system(args.join(" "))
     end
   end
 end
